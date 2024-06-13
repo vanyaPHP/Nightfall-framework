@@ -1,0 +1,15 @@
+{
+    "name": "daymos/nightfall-framework",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Nightfall\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "email": "lavandos322@gmail.com",
+            "name": "Ivan Lodnia"
+        }
+    ]
+}
