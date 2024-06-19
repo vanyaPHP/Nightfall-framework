@@ -2,9 +2,10 @@
 
 namespace Nightfall\ServiceContainer;
 
+use Nightfall\Validator\AbstractValidatorRequest;
 use ReflectionParameter;
 
-class ServiceContainer implements ServiceContainerInterface
+final class ServiceContainer implements ServiceContainerInterface
 {
     private array $definitions = [];
     

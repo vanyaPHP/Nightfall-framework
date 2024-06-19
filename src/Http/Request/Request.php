@@ -18,4 +18,9 @@ class Request
     {
         return $this->method->value;
     }
+
+    public function getBody(): array
+    {
+        return json_decode(file_get_contents("php://input"), true);
+    } 
 }
