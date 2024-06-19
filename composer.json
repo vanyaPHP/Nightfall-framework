@@ -3,7 +3,8 @@
     "require": {},
     "autoload": {
         "psr-4": {
-            "Nightfall\\": "src/"
+            "Nightfall\\": "src/",
+            "App\\": "app/"
         }
     },
     "authors": [
