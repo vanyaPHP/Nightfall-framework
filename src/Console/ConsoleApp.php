@@ -7,7 +7,9 @@ class ConsoleApp
     private array $arguments = [];
 
     private array $commands = [
-        'serve' => 'Start the application'
+        'serve' => 'Start the application',
+        'generate:validator' => 'Generate request validator',
+        'generate:controller' => 'Generate controller' 
     ];
 
     public function __construct()
@@ -35,7 +37,16 @@ class ConsoleApp
         else
         {
             $handler = new CommandHandler();
-            $handler->$command();
+            $commandParts = explode(':', $command);
+            $methodName = $commandParts[0];
+            unset($commandParts[0]);
+            $methodName .= implode('', 
+                array_map(
+                    fn ($commandPart) => ucfirst($commandPart),
+                    $commandParts
+                )
+            );
+            $handler->$methodName();
         }
     }
 }

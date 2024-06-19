@@ -1,19 +1,11 @@
-<?php
+<?php 
 
 namespace App\Controller;
 
-use App\Service\TestService;
+use Nightfall\Http\Controller\BaseController;
 
-class TestController
+class TestController extends BaseController
 {
-    public function index()
-    {
-        echo "Hello, world";
-    }
 
-    public function show(string $name, TestService $testService)
-    {
-        echo "Hello, $name";
-        var_dump($testService);
-    }
+
 }

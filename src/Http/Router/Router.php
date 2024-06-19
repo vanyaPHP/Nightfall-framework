@@ -58,7 +58,12 @@ class Router
                     return $this->serviceContainer->get($param->getType());
                 }
             }, $params);
-            call_user_func([$controller, $handler[1]], ...$params);
+            
+            /**
+             * @var Response $response
+             */
+            $response = call_user_func([$controller, $handler[1]], ...$params);
+            $response->send();
         }
     }
 
