@@ -4,6 +4,7 @@ namespace Nightfall\Http;
 
 use Dotenv\Dotenv;
 use Nightfall\Fallen\Connection\DatabaseConnection;
+use Nightfall\Fallen\DataMapper\DataMapper;
 use Nightfall\Fallen\EntityManager\EntityManager;
 use Nightfall\Fallen\QueryBuilder\QueryBuilder;
 use Nightfall\Http\Request\HttpMethod;
@@ -35,10 +36,16 @@ class Kernel
         );
 
         $container->singleton(
+            DataMapper::class,
+            fn () => new DataMapper()
+        );
+
+        $container->singleton(
             EntityManager::class,
             fn () => new EntityManager(
                 $container->get(DatabaseConnection::class),
-                $container->get(QueryBuilder::class)
+                $container->get(QueryBuilder::class),
+                $container->get(DataMapper::class)
             )
         );
 
