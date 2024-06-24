@@ -5,7 +5,11 @@ namespace Nightfall\Fallen\Attributes;
 use Attribute;
 
 #[Attribute]
-class ManyToOne extends OneToMany
+class ManyToOne
 {
-    public function __construct() {}
+    public function __construct(
+        public readonly string $relatedEntityClassName,
+        public readonly string $localKey,
+        public readonly string $foreignKey
+    ) {}
 }

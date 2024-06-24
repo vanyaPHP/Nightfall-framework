@@ -5,6 +5,10 @@ namespace Nightfall\Fallen\DataMapper;
 use Nightfall\Fallen\Attributes\Column;
 use Nightfall\Fallen\Attributes\Entity;
 use Nightfall\Fallen\Attributes\Id;
+use Nightfall\Fallen\Attributes\ManyToMany;
+use Nightfall\Fallen\Attributes\ManyToOne;
+use Nightfall\Fallen\Attributes\OneToMany;
+use Nightfall\Fallen\Attributes\OneToOne;
 use Nightfall\Fallen\Repository\RepositoryInterface;
 use ReflectionClass;
 use ReflectionProperty;
@@ -22,6 +26,12 @@ class DataMapper implements DataMapperInterface
 
     public function mapEntityClass(string $entityClassName): array
     {
+        return $this->getMappedClassInfo($entityClassName);
+    }
+
+
+    private function getMappedClassInfo(string $entityClassName, array $relationStack = []): array
+    {
         $result = [];
 
         $reflectionClass = new ReflectionClass($entityClassName);
@@ -29,6 +39,7 @@ class DataMapper implements DataMapperInterface
         
         $entityAttribute = $reflectionClass->getAttributes(Entity::class)[0];
         $entityAttributeInstance = $entityAttribute->newInstance();
+        $result['entityClass'] = $entityClassName;
         $result['tableName'] = $entityAttributeInstance->tableName;
         $result['repositoryClass'] = $entityAttributeInstance->repositoryClass;
         
@@ -55,6 +66,85 @@ class DataMapper implements DataMapperInterface
                 ];
             }
             unset($columnAttribute);
+
+            $oneToManyAttribute = $property->getAttributes(OneToMany::class);
+            if (count($oneToManyAttribute) != 0)
+            {
+                $oneToManyAttribute = $oneToManyAttribute[0]->newInstance();
+                $result['relations'][$property->getName()] = [
+                    'relationType' => 'oneToMany',
+                    'localKey' => $oneToManyAttribute->localKey,
+                    'foreignKey' => $oneToManyAttribute->foreignKey,
+                    'relatedEntityInfo' => in_array($oneToManyAttribute->relatedEntityClassName, $relationStack)
+                        ? $oneToManyAttribute->relatedEntityClassName
+                        : $this->getMappedClassInfo(
+                            $oneToManyAttribute
+                                ->relatedEntityClassName,
+                            [...$relationStack, $entityClassName]
+                        )
+                ];
+            }
+            unset($oneToManyAttribute);
+
+            $manyToOneAttribute = $property->getAttributes(ManyToOne::class);
+            if (count($manyToOneAttribute) != 0)
+            {
+                $manyToOneAttribute = $manyToOneAttribute[0]->newInstance();
+                $result['relations'][$property->getName()] = [
+                    'relationType' => 'manyToOne',
+                    'localKey' => $manyToOneAttribute->localKey,
+                    'foreignKey' => $manyToOneAttribute->foreignKey,
+                    'relatedEntityInfo' => in_array($manyToOneAttribute->relatedEntityClassName, $relationStack)
+                        ? $manyToOneAttribute->relatedEntityClassName
+                        : $this->getMappedClassInfo(
+                            $manyToOneAttribute
+                                ->relatedEntityClassName,
+                            [...$relationStack, $entityClassName]
+                        )
+
+                ];
+            }
+            unset($manyToOneAttribute);
+
+            $oneToOneAttribute = $property->getAttributes(OneToOne::class);
+            if (count($oneToOneAttribute) != 0)
+            {
+                $oneToOneAttribute = $oneToOneAttribute[0]->newInstance();
+                $result['relations'][$property->getName()] = [
+                    'relationType' => 'oneToOne',
+                    'localKey' => $oneToOneAttribute->localKey,
+                    'foreignKey' => $oneToOneAttribute->foreignKey,
+                    'isChild' => $oneToOneAttribute->isChild,
+                    'relatedEntityInfo' => in_array($oneToOneAttribute->relatedEntityClassName, $relationStack)
+                        ? $oneToOneAttribute->relatedEntityClassName
+                        : $this->getMappedClassInfo(
+                            $oneToOneAttribute
+                                ->relatedEntityClassName,
+                            [...$relationStack, $entityClassName]
+                        )
+                ];
+            }
+            unset($oneToOneAttribute);
+
+            $manyToManyAttribute = $property->getAttributes(ManyToMany::class);
+            if (count($manyToManyAttribute) != 0)
+            {
+                $manyToManyAttribute = $manyToManyAttribute[0]->newInstance();
+                $result['relations'][$property->getName()] = [
+                    'relationType' => 'manyToMany',
+                    'localKey' => $manyToManyAttribute->localKey,
+                    'joinTableName' => $manyToManyAttribute->joinTableName,
+                    'joinTableKey' => $manyToManyAttribute->joinTableKey,
+                    'relatedEntityInfo' => in_array($manyToManyAttribute->relatedEntityClassName, $relationStack)
+                        ? $manyToManyAttribute->relatedEntityClassName
+                        : $this->getMappedClassInfo(
+                            $manyToManyAttribute
+                                ->relatedEntityClassName,
+                            [...$relationStack, $entityClassName]
+                        )
+                ];
+            }
+            unset($manyToManyAttribute);
         }
 
         return $result;
