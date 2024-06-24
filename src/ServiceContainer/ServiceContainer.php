@@ -54,6 +54,6 @@ final class ServiceContainer implements ServiceContainerInterface
             $this->get($param->getType()->getName()), 
             ($reflection->getConstructor() == null) ? [] : $reflection->getConstructor()->getParameters());
 
-        return new $className();
+        return new $className(...$params);
     }
 }
